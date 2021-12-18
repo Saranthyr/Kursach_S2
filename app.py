@@ -1,6 +1,9 @@
-from flask import Flask
-from back.db_conn import conn
 
-conn()
+from back.db_conn_async import connection
+import json
+import flask
 
-app = Flask(__name__)
+
+
+
+

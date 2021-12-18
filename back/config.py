@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 
 class Database_Settings():
-    load_dotenv('.flaskenv')
+    load_dotenv('../.flaskenv')
     _environ = os.environ
 
     db_serv: str = _environ.get("DB_HOST", None)
