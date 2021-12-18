@@ -27,6 +27,7 @@ def load_file(filename):
                     'longitude float,' \
                     'latitude float)'
             cursor.execute(q)
+            conn.commit()
     cursor.close()
     conn.close()
     print(str(datetime.datetime.now().time()) + ' ' + filename + ' finished')
