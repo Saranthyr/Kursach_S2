@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html class='use-all-space'>
+    <meta http-equiv='X-UA-Compatible' content='IE=Edge' />
+    <meta charset='UTF-8'>
+    <title>My Map</title>
+    <meta name='<!DOCTYPE html>'/>
+<html class='use-all-space'/>
+<head>
+    <meta http-equiv='X-UA-Compatible' content='IE=Edge' />
+    <meta charset='UTF-8'>
+    <title>My Map</title>
+    <meta name='viewport'
+          content='width=25%, height=device-height, initial-scale=1,maximum-scale=1,user-scalable=no'/>
+    <link rel='stylesheet' type='text/css' href='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps.css'/>
+    <style>
+       #map {
+           width: 50vw;
+           height: 100vh;
+       }
+    </style>
+</head>
+<body>
+    <div id='map' class='map'></div>
+    <script src='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js'></script>
+    <script>
+      tt.setProductInfo('test', '0.0.1');
+      tt.map({
+          key: '',
+          container: 'map'
+      });
+    </script>
+</body>
