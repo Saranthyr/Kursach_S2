@@ -4,7 +4,7 @@ import transliterate
 from back.db_conn import connection
 
 
-def load_file(filename):
+def generate_table_from_file(filename):
     print(str(datetime.datetime.now().time()) + ' ' + filename + ' started')
     conn = connection()
     cursor = conn.cursor()
@@ -33,11 +33,11 @@ def load_file(filename):
     print(str(datetime.datetime.now().time()) + ' ' + filename + ' finished')
 
 
-def miracle_worker():
-    load_file("data-4275-2021-11-30-0.json")
-    load_file("data-4275-2021-11-30-1.json")
-    load_file("data-4275-2021-11-30-2.json")
-    load_file("data-4275-2021-11-30-3.json")
-    load_file("data-4275-2021-11-30-4.json")
+def tables_generation():
+    generate_table_from_file("data-4275-2021-11-30-0.json")
+    generate_table_from_file("data-4275-2021-11-30-1.json")
+    generate_table_from_file("data-4275-2021-11-30-2.json")
+    generate_table_from_file("data-4275-2021-11-30-3.json")
+    generate_table_from_file("data-4275-2021-11-30-4.json")
 
     return 0

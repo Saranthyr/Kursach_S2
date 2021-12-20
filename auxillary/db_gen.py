@@ -1,15 +1,15 @@
 import datetime
 import json
-import asyncio
 import timeit
 import transliterate
 from auxillary.db_tables_gen import tables_generation
-from back.db_conn_async import connection
+from back.db_conn import connection
 
 
-async def insert_data_from_file(filename):
+def generate_data_from_file(filename):
     print(str(datetime.datetime.now().time()) + ' ' + filename + ' started')
-    conn = await connection()
+    conn = connection()
+    cursor = conn.cursor()
     with open(filename, "r", encoding='utf-8') as f:
         a = json.load(f)
         for i in range(len(a)):
@@ -21,29 +21,31 @@ async def insert_data_from_file(filename):
             tablename = type_obj + '_' + net_obj
             q = "insert into "
             q = q + tablename
-            q = q + " (id, name, address, phone, seats_count, longitude, latitude) values ($1, $2, $3, $4, $5, $6, $7)" \
+            q = q + " (id, name, address, phone, seats_count, longitude, latitude) values (%s, %s, %s, %s, %s, %s, %s)" \
                     "on conflict do nothing"
-            await conn.execute(q, int(a[i]['ID']), a[i]['Name'], a[i]['Address'],
+            cursor.execute(q, (int(a[i]['ID']), a[i]['Name'], a[i]['Address'],
                                    a[i]['PublicPhone'][0]['PublicPhone'], a[i]['SeatsCount'],
-                                   float(a[i]['Longitude_WGS84']), float(a[i]['Latitude_WGS84']))
+                                   float(a[i]['Longitude_WGS84']), float(a[i]['Latitude_WGS84'])))
+            conn.commit()
+        cursor.close()
+        conn.close()
     print(str(datetime.datetime.now().time()) + ' ' + filename + ' finished')
 
 
-async def data_gen():
+def generation():
     try:
         start = timeit.default_timer()
         tables_generation()
-        await asyncio.gather(
-            insert_data_from_file("data-4275-2021-11-30-0.json"),
-            insert_data_from_file("data-4275-2021-11-30-1.json"),
-            insert_data_from_file("data-4275-2021-11-30-2.json"),
-            insert_data_from_file("data-4275-2021-11-30-3.json"),
-            insert_data_from_file("data-4275-2021-11-30-4.json")
-        )
+        generate_data_from_file("data-4275-2021-11-30-0.json")
+        generate_data_from_file("data-4275-2021-11-30-1.json")
+        generate_data_from_file("data-4275-2021-11-30-2.json")
+        generate_data_from_file("data-4275-2021-11-30-3.json")
+        generate_data_from_file("data-4275-2021-11-30-4.json")
         finish = timeit.default_timer()
         print("Time elapsed: " + str(finish - start))
     except Exception as e:
         print(e.__name__)
         pass
 
-asyncio.get_event_loop().run_until_complete(data_gen())
+
+generation()
