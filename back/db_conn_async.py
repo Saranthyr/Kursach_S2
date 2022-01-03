@@ -1,5 +1,5 @@
 import asyncpg
-from back.config import Config as config
+from config import Config as config
 
 
 async def connection():
@@ -9,4 +9,3 @@ async def connection():
                                  password=config.DB_SETTINGS.db_pwd,
                                  database=config.DB_SETTINGS.db_name)
     return conn
-

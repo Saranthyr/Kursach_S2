@@ -1,8 +1,9 @@
 from dotenv import load_dotenv
 import os
 
-class Database_Settings():
-    load_dotenv('../.flaskenv')
+
+class Database_Settings:
+    load_dotenv()
     _environ = os.environ
 
     db_serv: str = _environ.get("DB_HOST", None)
@@ -11,5 +12,6 @@ class Database_Settings():
     db_user: str = _environ.get("DB_USER", None)
     db_pwd: str = _environ.get("DB_PASSWORD", None)
 
-class Config():
+
+class Config:
     DB_SETTINGS = Database_Settings()
