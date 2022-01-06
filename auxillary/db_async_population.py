@@ -25,7 +25,7 @@ async def insert_data_from_file(filename):
                     "on conflict do nothing"
             await conn.execute(q, int(a[i]['ID']), a[i]['Name'], a[i]['Address'],
                                    a[i]['PublicPhone'][0]['PublicPhone'], a[i]['SeatsCount'],
-                                   float(a[i]['Longitude_WGS84']), float(a[i]['Latitude_WGS84']))
+                                   float(a[i]['geoData']['coordinates'][0]), float(a[i]['geoData']['coordinates'][1]))
     print(str(datetime.datetime.now().time()) + ' ' + filename + ' finished')
 
 

@@ -10,11 +10,11 @@
     <meta charset='UTF-8'>
     <title>My Map</title>
     <meta name='viewport'
-          content='width=25%, height=device-height, initial-scale=1,maximum-scale=1,user-scalable=no'/>
+          content='width=100%, height=device-height, initial-scale=1,maximum-scale=1,user-scalable=no'/>
     <link rel='stylesheet' type='text/css' href='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps.css'/>
     <style>
        #map {
-           width: 50vw;
+           width: 100vw;
            height: 100vh;
        }
     </style>
@@ -23,10 +23,10 @@
     <div id='map' class='map'></div>
     <script src='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js'></script>
     <script>
-      tt.setProductInfo('test', '0.0.1');
-      tt.map({
-          key: '',
+        const apiKey = '2gek3AIVueyYNkGBGB3eWyO9zhs6cij8';
+        const map = tt.map({
+          key: apiKey,
           container: 'map'
-      });
+        });
     </script>
 </body>
