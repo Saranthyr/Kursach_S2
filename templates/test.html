@@ -8,6 +8,8 @@
 <head>
     <meta http-equiv='X-UA-Compatible' content='IE=Edge' />
     <meta charset='UTF-8'>
+    <script src='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js'></script>
+    <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.6.0/services/services-web.min.js"></script>
     <title>My Map</title>
     <meta name='viewport'
           content='width=100%, height=device-height, initial-scale=1,maximum-scale=1,user-scalable=no'/>
@@ -21,12 +23,70 @@
 </head>
 <body>
     <div id='map' class='map'></div>
-    <script src='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js'></script>
     <script>
         const apiKey = '2gek3AIVueyYNkGBGB3eWyO9zhs6cij8';
+        const center = [{{ longitude }}, {{ latitude }}];
+
+        let bestRoute;
+        let p_o_i;
+
         const map = tt.map({
           key: apiKey,
-          container: 'map'
+          container: 'map',
+          center: center,
+          zoom: 13
         });
+
+        function createPOI(name, coordinates) {
+            return {
+                name: name,
+                coordinates: coordinates,
+                icon: "<img src=static/images/pin.png style='width:55px; height:55px;'>"
+            };
+        }
+
+        function displayPOI() {
+            p_o_i = createPOI('test', [{{ closest_long }}, {{ closest_lat }}]);
+        }
+
+        function buildStyle(id, data, color, width) {
+            return {
+                'id': id,
+                'type': 'line',
+                'source': {
+                    'type': 'geojson',
+                    'data': data
+                },
+                'paint': {
+                    'line-color': color,
+                    'line-width': width
+                },
+                'layout': {
+                    'line-cap': 'round',
+                    'line-join': 'round'
+                }
+            }
+        }
+
+        function drawRoute() {
+            const origins = [{{ longitude }}, {{ latitude }}];
+            const destination = [{{ closest_long }}, {{ closest_lat }}];
+            tt.services.calculateRoute({
+                key: apiKey,
+                locations: [origins, destination],
+                traffic: true
+            }).then(function (routeData) {
+                const routeGeoJson = routeData.toGeoJson();
+                map.addLayer(buildStyle('0', routeGeoJson, 'red', 15));
+
+            });
+        }
+
+        displayPOI();
+
+        const target = document.createElement('div');
+        target.innerHTML = p_o_i.icon;
+        new tt.Marker({ element: target, offest: [0, 27]}).setLngLat(p_o_i.coordinates).addTo(map);
+        drawRoute();
     </script>
 </body>
