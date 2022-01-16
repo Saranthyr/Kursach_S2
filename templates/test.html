@@ -24,7 +24,7 @@
 <body>
     <div id='map' class='map'></div>
     <script>
-        const apiKey = '2gek3AIVueyYNkGBGB3eWyO9zhs6cij8';
+        const apiKey = '{{ api_key }}';
         const center = [{{ longitude }}, {{ latitude }}];
 
         let bestRoute;
@@ -68,25 +68,16 @@
             }
         }
 
-        function drawRoute() {
-            const origins = [{{ longitude }}, {{ latitude }}];
-            const destination = [{{ closest_long }}, {{ closest_lat }}];
-            tt.services.calculateRoute({
-                key: apiKey,
-                locations: [origins, destination],
-                traffic: true
-            }).then(function (routeData) {
-                const routeGeoJson = routeData.toGeoJson();
-                map.addLayer(buildStyle('0', routeGeoJson, 'red', 15));
-
-            });
+        function test(routeData){;
+            map.on('load', function layer() {
+                map.addLayer(buildStyle('0', routeData, 'red', 5));
+            })
         }
 
         displayPOI();
-
         const target = document.createElement('div');
         target.innerHTML = p_o_i.icon;
         new tt.Marker({ element: target, offest: [0, 27]}).setLngLat(p_o_i.coordinates).addTo(map);
-        drawRoute();
+        test({{ route | safe}});
     </script>
 </body>

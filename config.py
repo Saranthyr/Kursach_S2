@@ -13,5 +13,13 @@ class Database_Settings:
     db_pwd: str = _environ.get("DB_PASSWORD", None)
 
 
+class Api_Access:
+    load_dotenv()
+    _environ = os.environ
+
+    api_key: str = _environ.get("API_KEY", None)
+
+
 class Config:
     DB_SETTINGS = Database_Settings()
+    API_ACCESS = Api_Access()

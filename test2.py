@@ -23,7 +23,7 @@ def coordinates_pool(tablename):
 
 
 def create_coordinates_pool():
-    coordinates_pool('restoran_net')
+    coordinates_pool('bar_net')
 
 
 def check_distance(latitude, longitude):
