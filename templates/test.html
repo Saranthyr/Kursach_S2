@@ -10,6 +10,7 @@
     <meta charset='UTF-8'>
     <script src='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps-web.min.js'></script>
     <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.6.0/services/services-web.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <title>My Map</title>
     <meta name='viewport'
           content='width=100%, height=device-height, initial-scale=1,maximum-scale=1,user-scalable=no'/>
@@ -18,12 +19,36 @@
        #map {
            width: 100vw;
            height: 100vh;
+           z-index: 2;
+       }
+       .test {
+           position: absolute;
+           z-index: 1;
        }
     </style>
 </head>
 <body>
-    <div id='map' class='map'></div>
+    <div id='map' class='map'>
+        <form method="POST">
+            <input class="test" type="text" id="user_address" placeholder="Enter your address..."><br />
+        </form>
+    </div>
     <script>
+        $("#user_address").keyup(function() {
+            var address = $(this).val()
+
+            $.ajax({
+                url: "/",
+                type:"get",
+                data: {jsdata: text},
+                success: function() {
+                    console.log('check');
+                },
+                error: function() {
+                    console.log('fail');
+                }
+            });
+        });
         const apiKey = '{{ api_key }}';
         const center = [{{ longitude }}, {{ latitude }}];
 
@@ -36,6 +61,8 @@
           center: center,
           zoom: 13
         });
+
+
 
         function createPOI(name, coordinates) {
             return {

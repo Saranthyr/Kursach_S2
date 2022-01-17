@@ -20,6 +20,8 @@ def coordinates_pool(tablename):
     cursor.execute(q)
     for record in cursor.fetchall():
         coordinates.append([record[0], record[1]])
+    cursor.close()
+    conn.close()
 
 
 def create_coordinates_pool():
@@ -51,4 +53,6 @@ def nearest (latitude, longitude):
             if distances[i][0] < closest:
                 closest = distances[i][0]
                 closest_coords = [distances[i][1], distances[i][2]]
+    distances.clear()
+    coordinates.clear()
     return closest_coords
