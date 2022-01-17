@@ -62,9 +62,9 @@
                 language:"ru-RU",
                 countrySet: "RUS",
                 extendedPostalCodes: "None",
-                idxSet: "Str,PAD",
-                minFuzzyLevel: 2,
-                maxFuzzyLevel: 3,
+                idxSet: "Addr,PAD,Str",
+                minFuzzyLevel: 1,
+                maxFuzzyLevel: 2,
                 resultSet: "category"
             },
             autocompleteOptions: {
@@ -76,7 +76,7 @@
             },
             filterSearchResults: function (searchResult) {
                 return Boolean(searchResult.address.municipality == "Москва"
-                && searchResult.type == "Street" && typeof searchResult.address.postalCode == 'undefined')
+                && searchResult.type == "Street")
             },
             labels: {
                 placeholder: 'Введите свой адрес',
@@ -94,7 +94,6 @@
                 options.searchOptions.query = "Москва, " + req;
                 options.autocompleteOptions.query = "Москва, " + req;
                 ttSearchBox.updateOptions(options);
-                console.log(options.searchOptions.query);
             };
         });
 
