@@ -34,6 +34,8 @@
         const apiKey = '{{ api_key }}';
         const center = [{{ longitude }}, {{ latitude }}];
 
+        var layer_id = 0;
+
         let bestRoute;
         let p_o_i;
 
@@ -74,7 +76,7 @@
             },
             filterSearchResults: function (searchResult) {
                 return Boolean(searchResult.address.municipality == "Москва"
-                && searchResult.type == "Street" && typeof searchResult.address.postalCode !== 'undefined')
+                && searchResult.type == "Street" && typeof searchResult.address.postalCode == 'undefined')
             },
             labels: {
                 placeholder: 'Введите свой адрес',
@@ -111,8 +113,8 @@
             };
         }
 
-        function displayPOI() {
-            p_o_i = createPOI('test', [{{ closest_long }}, {{ closest_lat }}]);
+        function displayPOI(coordinates) {
+            p_o_i = createPOI('test', coordinates);
         }
 
         function buildStyle(id, data, color, width) {
@@ -134,17 +136,21 @@
             }
         }
 
-        function test(routeData){;
+        function test(id,routeData){
             map.on('load', function layer() {
-                map.addLayer(buildStyle('0', routeData, 'red', 5));
+                map.addLayer(buildStyle(id , routeData, 'red', 5));
             })
         }
 
-        displayPOI();
+        function newLayer(id, routeData) {
+            map.addLayer(buildStyle(id, routeData, 'red', 5));
+        }
+
+        displayPOI([{{ closest_long }}, {{ closest_lat }}]);
         const target = document.createElement('div');
         target.innerHTML = p_o_i.icon;
-        new tt.Marker({ element: target, offest: [0, 27]}).setLngLat(p_o_i.coordinates).addTo(map);
-        test({{ route | safe}});
+        let marker = new tt.Marker({ element: target, offset: [0, 27]}).setLngLat(p_o_i.coordinates).addTo(map);
+        test(String(layer_id), {{ route | safe}});
 
         ttSearchBox.on('tomtom.searchbox.resultselected', async function(event) {
             console.log('check');
@@ -154,8 +160,14 @@
             let response = await fetch('/', {method: 'POST',
                 body: formData});
             if (response.ok) {
-                let result = await response.text();
-                console.log(result);
+                let result = await response.json();
+                marker.remove();
+                map.removeLayer(String(layer_id));
+                layer_id += 1;
+                displayPOI([result['closest_longitude'], result['closest_latitude']]);
+                marker.setLngLat(p_o_i.coordinates).addTo(map);
+                newLayer(String(layer_id), result['geodata']);
+                map.jumpTo({'center': [result['longitude'], result['latitude']]});
             }
             else {
                 console.log(response.status);

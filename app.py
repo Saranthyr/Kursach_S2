@@ -21,9 +21,24 @@ app = flask.Flask(__name__)
 #
 
 @app.route('/', methods=['GET', 'POST'])
-def test():
-    long = float(flask.request.form.get('longitude', 37.475096))
-    lat = float(flask.request.form.get('latitude', 55.728985))
+def test(lat = 55.728985, long = 37.475096):
+    if flask.request.method=="POST":
+        long = float(flask.request.form.get('longitude'))
+        lat = float(flask.request.form.get('latitude'))
+        print(long)
+        print(lat)
+        closest = nearest(lat, long)
+        get_request = 'https://api.tomtom.com/routing/1/calculateRoute/' + str(lat) + ',' + str(long) + \
+                      ':' + str(closest[0]) + ',' + str(closest[1]) + '/json?' \
+                                                                      '&traffic=true&key=' + config.API_ACCESS.api_key
+        r = requests.get(get_request)
+        t = json.loads(bytes(r.content))
+        geodata = convert(t)
+        return flask.jsonify({'geodata': geodata,
+                              'closest_longitude': closest[1],
+                              'closest_latitude': closest[0],
+                              'longitude': long,
+                              'latitude': lat})
 
     closest = nearest(lat, long)
     get_request = 'https://api.tomtom.com/routing/1/calculateRoute/' + str(lat) + ',' + str(long) +\
