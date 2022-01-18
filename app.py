@@ -1,14 +1,13 @@
 import flask
-from config import Config as config
-from data_prep import data_prep
+from data_prep import data_prep, key_selection
 
 
 app = flask.Flask(__name__)
 
 
 @app.route('/', methods=['GET', 'POST'])
-def test(lat = 55.728985, long = 37.475096):
-    if flask.request.method=="POST":
+def main():
+    if flask.request.method == "POST":
         long = float(flask.request.form.get('longitude'))
         lat = float(flask.request.form.get('latitude'))
         closest, geodata = data_prep(lat, long)
@@ -18,15 +17,8 @@ def test(lat = 55.728985, long = 37.475096):
                               'longitude': long,
                               'latitude': lat})
     else:
-        closest, geodata = data_prep(lat, long)
         return flask.\
-            render_template('tomtomservicever.html',
-                            longitude=long,
-                            latitude=lat,
-                            closest_lat=closest[0],
-                            closest_long=closest[1],
-                            api_key=config.API_ACCESS.api_key,
-                            route=geodata)
+            render_template('tomtomservicever.html')
 
 
 

@@ -2,15 +2,29 @@ import json
 import requests
 from test2 import nearest
 from to_geo_json import convert
-from config import Config as config
+from back.db_conn import connection
 
 
 def data_prep(lat, long):
     closest = nearest(lat, long)
+    routing_key = key_selection('routing')
     get_request = 'https://api.tomtom.com/routing/1/calculateRoute/' + str(lat) + ',' + str(long) + \
                   ':' + str(closest[0]) + ',' + str(closest[1]) + '/json?' \
-                                                                  '&traffic=true&key=' + config.API_ACCESS.api_key
+                                                                  '&traffic=true&key=' + routing_key
     r = requests.get(get_request)
     t = json.loads(bytes(r.content))
     geodata = convert(t)
     return closest, geodata
+
+
+def key_selection(key_type):
+    conn = connection()
+    key = ''
+    curs = conn.cursor()
+    q = 'select key from keys where key_type = ' + "'" + key_type + "'"
+    curs.execute(q)
+    for record in curs.fetchall():
+        key = record[0]
+    curs.close()
+    conn.close()
+    return key
