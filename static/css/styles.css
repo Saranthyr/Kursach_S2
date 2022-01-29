@@ -1,0 +1,32 @@
+.first {
+    position:absolute;
+    z-index: 1100;
+    left: 50px;
+    top: 15px;
+    width: 3vw;
+}
+.second {
+    position:absolute;
+    z-index: 1100;
+    left: 130px;
+    top: 15px;
+}
+.second_label {
+    position:absolute;
+    z-index: 1100;
+    left: 150px;
+    top: 15px;
+    color: black;
+}
+.third {
+    position:absolute;
+    z-index: 1100;
+    left: 210px;
+    top: 15px;
+}
+.fourth {
+    position:absolute;
+    z-index: 1100;
+    right: 20px;
+    top: 15px;
+}

@@ -17,9 +17,10 @@
       crossorigin="anonymous"></script>
     <title>My Map</title>
     <meta name='viewport'
-          content='width=100%, height=device-height, initial-scale=1,maximum-scale=1,user-scalable=no'/>
+          content='width=device-width, height=device-height, initial-scale=1,maximum-scale=1,user-scalable=no'/>
     <link rel='stylesheet' type='text/css' href='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.15.0/maps/maps.css'/>
     <link rel='stylesheet' type='text/css' href='https://api.tomtom.com/maps-sdk-for-web/cdn/plugins/SearchBox/3.1.11/SearchBox.css'>
+    <link rel='stylesheet' type="text/css" href="static/css/styles.css">
     <style>
        #map {
            width: 100vw;
@@ -28,11 +29,33 @@
     </style>
 </head>
 <body>
-    <div id='map' class='map'>
+    <div id="cont">
+        <div id='map' class='map'>
+            <div id="buttons">
+                <select name="kek" id="type" class="first">
+                    <option value="bar">Бар</option>
+                    <option value="bufet">Буфет</option>
+                    <option value="kafe">Кафе</option>
+                    <option value="kafeterij">Кафетерий</option>
+                    <option value="predprijatie_bystrogo_obsluzhivanija">Фаст фуд</option>
+                    <option value="magazin_otdel_kulinarii">Отдел кулинарии</option>
+                    <option value="restoran">Ресторан</option>
+                    <option value="stolovaja">Столовая</option>
+                    <option value="zakusochnaja">Закусочная</option>
+                </select>
+                <input type="checkbox" id="net" class="second">
+                <label for="net" class="second_label">Сетевое?</label>
+                <select name="legs-car" id="legs-car" class="third">
+                    <option value="pedestrian">Пешком</option>
+                    <option value="car">Машина</option>
+                </select>
+                <select name="theme" id="theme" class="fourth">
+                    <option value="basic_main">Дневная</option>
+                    <option value="basic_night">Ночная</option>
+                </select>
+            </div>
+        </div>
     </div>
     <script src="static\scripts\test.js"></script>
-</body>
-<body>
-
 </body>
 </html>

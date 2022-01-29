@@ -1,13 +1,19 @@
 const mapDisplayKey = 'HroGGaVWiuC5LUReWH6uimeNZF4QEzIw';
-const searchKey = 'EaP9PCgZntMQeqBZpeoG9DxbxVybLBGU';
 const center = [37.617617, 55.755811];
 const target = document.createElement('div');
+const type = document.getElementById("type");
+const net = document.getElementById("net");
+const mode = document.getElementById("legs-car");
+const theme = document.getElementById("theme");
 
 var layer_id = 0;
-
+let long;
+let lat;
 let marker = new tt.Marker({ element: target, offset: [0, 27]});
 let bestRoute;
 let p_o_i;
+
+let saved_response;
 
 const map = tt.map({
   key: mapDisplayKey,
@@ -16,79 +22,33 @@ const map = tt.map({
   zoom: 9.5,
   style: {
         poi: 'poi_main',
-        map: 'basic_night'
+        map: 'basic_main'
   },
   stylesVisibility: {
         poi: false
   }
 });
 
-var options = {
-    idleTimePress: 500,
-    minNumberOfCharacters: 5,
-    searchOptions: {
-        key:searchKey,
-        language:"ru-RU",
-        countrySet: "RUS",
-        extendedPostalCodes: "None",
-        idxSet: "Addr,PAD,Str",
-        minFuzzyLevel: 2,
-        maxFuzzyLevel: 2,
-        resultSet: "category"
-    },
-    autocompleteOptions: {
-        key:searchKey,
-        language:"ru-RU",
-        countrySet: "RUS",
-        extendedPostalCodes: "None",
-        resultSet: "category"
-    },
-    filterSearchResults: function (searchResult) {
-        if (searchResult.address.municipality == "Москва") {
-            return true;
-        }
-        else {
-            return false;
-        }
-    },
-    labels: {
-        placeholder: 'Введите свой адрес',
-        noResultsMessage: 'Нет результатов'
+var popup = new tt.Popup();
+var geolocateControl = new tt.GeolocateControl({
+    positionOptions:{
+        enableHighAccuracy: true
     }
-}
-
-var ttSearchBox = new tt.plugins.SearchBox(tt.services, options);
-var searchBoxHTML = ttSearchBox.getSearchBoxHTML();
-document.body.appendChild(searchBoxHTML);
-map.addControl(ttSearchBox, 'top-left');
-ttSearchBox.on('tomtom.searchbox.loadingstarted', function() {
-    var req = ttSearchBox.getValue();
-    if (req != '' && req.length >= 5) {
-        options.searchOptions.query = "Москва, " + req;
-        options.autocompleteOptions.query = "Москва, " + req;
-        ttSearchBox.updateOptions(options);
-    };
 });
-
-ttSearchBox.on('tomtom.searchbox.resultsfound', function(event) {
-    var res1 = event.data.results.fuzzySearch.results;
-    for (let i = 0; i < res1.length; i++) {
-        console.log(res1[i]);
-    };
-});
+map.addControl(geolocateControl, 'top-left');
 
 function createPOI(name, coordinates) {
     return {
         name: name,
         coordinates: coordinates,
-        icon: "<img src=static/images/pin.png style='width:55px; height:55px;'>"
+        icon: "<img src=static/images/"+ theme.value + ".png style='width:25px; height:25px;'>"
     };
-}
+};
 
 function displayPOI(coordinates) {
     p_o_i = createPOI('test', coordinates);
     target.innerHTML = p_o_i.icon;
-}
+};
 
 function buildStyle(id, data, color, width) {
     return {
@@ -107,34 +67,47 @@ function buildStyle(id, data, color, width) {
             'line-join': 'round'
         }
     }
-}
+};
 
 function test(id,routeData){
     map.on('load', function layer() {
         map.addLayer(buildStyle(id , routeData, 'red', 5));
     })
-}
+};
 
 function newLayer(id, routeData) {
     map.addLayer(buildStyle(id, routeData, 'red', 5));
-}
+};
 
-ttSearchBox.on('tomtom.searchbox.resultselected', async function(event) {
-    console.log('check');
+geolocateControl.on('geolocate', async function(event){
     let formData = new FormData();
-    formData.append("longitude", event.data.result['position']['lng']);
-    formData.append("latitude", event.data.result['position']['lat']);
+    long = event.coords['longitude'];
+    lat = event.coords['latitude'];
+    formData.append("longitude", event.coords['longitude']);
+    formData.append("latitude", event.coords['latitude']);
+    formData.append("table", type.value);
+    formData.append("mode", mode.value);
+    if (net.checked == true) {
+        formData.append("net", "True")
+    }
     let response = await fetch('/', {method: 'POST',
         body: formData});
-    if (response.ok) {
+    if (response.status == 200) {
         let result = await response.json();
-        if (map.getLayer(layer_id) != 'undefined'){
-            map.removeLayer(String(layer_id));
-            layer_id += 1;
-        }
+        saved_response = result;
         displayPOI([result['closest_longitude'], result['closest_latitude']]);
         marker.setLngLat(p_o_i.coordinates).addTo(map);
-        newLayer(String(layer_id), result['geodata']);
+        let html_content = "<h1>"+result['place_name']+"</h1><h2>"+result['address']+"</h2><p>"+result['phone']+"</p><p>Мест: "+result['seats']+"</p>"
+        popup.setHTML(html_content);
+        marker.setPopup(popup);
+        if (map.getLayer(layer_id) !== undefined) {
+            map.removeLayer(String(layer_id));
+            map.removeSource(String(layer_id));
+            newLayer(String(layer_id), result['geodata']);
+        }
+        else {
+            newLayer(String(layer_id), result['geodata']);
+        }
         let zoom;
         if (result['geodata']['features'][0]['properties']['summary']['lengthInMeters'] < 1000) {
             zoom = 16;
@@ -144,8 +117,201 @@ ttSearchBox.on('tomtom.searchbox.resultselected', async function(event) {
         }
         map.jumpTo({'center': [result['longitude'], result['latitude']],
         'zoom' : zoom});
+    };
+    if (response.status == 230) {
+            let result = await response.json();
+            if (map.getLayer(layer_id) !== undefined) {
+                map.removeLayer(String(layer_id));
+                map.removeSource(String(layer_id));
+                marker.remove();
+            }
+            alert(result['message']);
+        }
+});
+
+type.addEventListener('change', async function(event){
+    if (long !== undefined && lat !== undefined){
+        let formData = new FormData();
+        formData.append("longitude", long);
+        formData.append("latitude", lat);
+        formData.append("table", type.value);
+        formData.append("mode", mode.value);
+        if (net.checked == true) {
+            formData.append("net", "True")
+        }
+        let response = await fetch('/', {method: 'POST',
+            body: formData});
+        if (response.status == 200) {
+            let result = await response.json();
+            saved_response = result;
+            displayPOI([result['closest_longitude'], result['closest_latitude']]);
+            marker.setLngLat(p_o_i.coordinates).addTo(map);
+            let html_content = "<h1>"+result['place_name']+"</h1><h2>"+result['address']+"</h2><p>"+result['phone']+"</p><p>Мест: "+result['seats']+"</p>"
+            popup.setHTML(html_content);
+            if (map.getLayer(layer_id) !== undefined) {
+                map.removeLayer(String(layer_id));
+                map.removeSource(String(layer_id));
+                newLayer(String(layer_id), result['geodata']);
+            }
+            else {
+                newLayer(String(layer_id), result['geodata']);
+            }
+            let zoom;
+            if (result['geodata']['features'][0]['properties']['summary']['lengthInMeters'] < 1000) {
+                zoom = 16;
+            }
+            else {
+                zoom = 15;
+            }
+            map.jumpTo({'center': [result['longitude'], result['latitude']],
+                'zoom' : zoom});
+        }
+        if (response.status == 230) {
+            let result = await response.json();
+            if (map.getLayer(layer_id) !== undefined) {
+                map.removeLayer(String(layer_id));
+                map.removeSource(String(layer_id));
+                marker.remove();
+            }
+            alert(result['message']);
+        }
     }
     else {
-        console.log(response.status);
+        return false
     }
+});
+
+mode.addEventListener('change', async function(event){
+    if (long !== undefined && lat !== undefined){
+        let formData = new FormData();
+        formData.append("longitude", long);
+        formData.append("latitude", lat);
+        formData.append("table", type.value);
+        formData.append("mode", mode.value);
+        if (net.checked == true) {
+            formData.append("net", "True")
+        }
+        let response = await fetch('/', {method: 'POST',
+            body: formData});
+        if (response.status == 200) {
+            let result = await response.json();
+            saved_response = result;
+            displayPOI([result['closest_longitude'], result['closest_latitude']]);
+            marker.setLngLat(p_o_i.coordinates).addTo(map);
+            let html_content = "<h1>"+result['place_name']+"</h1><h2>"+result['address']+"</h2><p>"+result['phone']+"</p><p>Мест: "+result['seats']+"</p>"
+            popup.setHTML(html_content);
+            if (map.getLayer(layer_id) !== undefined) {
+                map.removeLayer(String(layer_id));
+                map.removeSource(String(layer_id));
+                newLayer(String(layer_id), result['geodata']);
+            }
+            else {
+                newLayer(String(layer_id), result['geodata']);
+            }
+            let zoom;
+            if (result['geodata']['features'][0]['properties']['summary']['lengthInMeters'] < 1000) {
+                zoom = 16;
+            }
+            else {
+                zoom = 15;
+            }
+            map.jumpTo({'center': [result['longitude'], result['latitude']],
+                'zoom' : zoom});
+        };
+        if (response.status == 230) {
+            let result = await response.json();
+            if (map.getLayer(layer_id) !== undefined) {
+                map.removeLayer(String(layer_id));
+                map.removeSource(String(layer_id));
+                marker.remove();
+            }
+            alert(result['message']);
+        }
+    }
+    else {
+        return false
+    }
+});
+
+net.addEventListener('change', async function(event){
+    if (long !== undefined && lat !== undefined){
+        let formData = new FormData();
+        formData.append("longitude", long);
+        formData.append("latitude", lat);
+        formData.append("table", type.value);
+        formData.append("mode", mode.value);
+        if (net.checked == true) {
+            formData.append("net", "True")
+        }
+        let response = await fetch('/', {method: 'POST',
+            body: formData});
+        if (response.status == 200) {
+            let result = await response.json();
+            saved_response = result;
+            displayPOI([result['closest_longitude'], result['closest_latitude']]);
+            marker.setLngLat(p_o_i.coordinates).addTo(map);
+            let html_content = "<h1>"+result['place_name']+"</h1><h2>"+result['address']+"</h2><p>"+result['phone']+"</p><p>Мест: "+result['seats']+"</p>"
+            popup.setHTML(html_content);
+            if (map.getLayer(layer_id) !== undefined) {
+                map.removeLayer(String(layer_id));
+                map.removeSource(String(layer_id));
+                newLayer(String(layer_id), result['geodata']);
+            }
+            else {
+                newLayer(String(layer_id), result['geodata']);
+            }
+            let zoom;
+            if (result['geodata']['features'][0]['properties']['summary']['lengthInMeters'] < 1000) {
+                zoom = 16;
+            }
+            else {
+                zoom = 15;
+            }
+            map.jumpTo({'center': [result['longitude'], result['latitude']],
+                'zoom' : zoom});
+        };
+        if (response.status == 230) {
+            let result = await response.json();
+            if (map.getLayer(layer_id) !== undefined) {
+                map.removeLayer(String(layer_id));
+                map.removeSource(String(layer_id));
+                marker.remove();
+            }
+            alert(result['message']);
+        }
+    }
+    else {
+        return false
+    }
+});
+
+theme.addEventListener('change', async function(event){
+    map.setStyle({poi: 'poi_main', map: theme.value});
+    map.on('idle', function() {
+        if (saved_response !== undefined){
+            displayPOI([saved_response['closest_longitude'], saved_response['closest_latitude']]);
+            marker.setLngLat(p_o_i.coordinates).addTo(map);
+            let html_content = "<h1>"+saved_response['place_name']+"</h1><h2>"+saved_response['address']+"</h2><p>"+saved_response['phone']+"</p><p>Мест: "+saved_response['seats']+"</p>"
+            popup.setHTML(html_content);
+            if (map.getLayer(layer_id) !== undefined) {
+                map.removeSource(String(layer_id));
+                newLayer(String(layer_id), saved_response['geodata']);
+            }
+            else {
+                newLayer(String(layer_id), saved_response['geodata']);
+            }
+            let zoom;
+            if (saved_response['geodata']['features'][0]['properties']['summary']['lengthInMeters'] < 1000) {
+                zoom = 16;
+            }
+            else {
+                zoom = 15;
+            }
+            map.jumpTo({'center': [saved_response['longitude'], saved_response['latitude']],
+            'zoom' : zoom});
+        }
+        else{
+            return 0;
+        }
+    });
 });

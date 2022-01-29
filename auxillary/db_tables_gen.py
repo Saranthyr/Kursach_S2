@@ -16,8 +16,7 @@ def generate_table_from_file(filename):
             type_obj = type_obj.replace(' ', '_')
             type_obj = type_obj.replace('(', '')
             type_obj = type_obj.replace(')', '')
-            net_obj = transliterate.translit(a[i]['IsNetObject'], reversed=True)
-            tablename = type_obj + '_' + net_obj
+            tablename = type_obj
             q = q + tablename
             q = q + ' (id integer PRIMARY KEY, ' \
                     'name text, ' \
@@ -25,7 +24,8 @@ def generate_table_from_file(filename):
                     'phone text, ' \
                     'seats_count integer, ' \
                     'longitude float,' \
-                    'latitude float)'
+                    'latitude float,' \
+                    'net_status boolean)'
             cursor.execute(q)
             conn.commit()
     cursor.close()

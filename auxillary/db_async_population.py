@@ -17,15 +17,25 @@ async def insert_data_from_file(filename):
             type_obj = type_obj.replace(' ', '_')
             type_obj = type_obj.replace('(', '')
             type_obj = type_obj.replace(')', '')
-            net_obj = transliterate.translit(a[i]['IsNetObject'], reversed=True)
-            tablename = type_obj + '_' + net_obj
+            net_obj = a[i]['IsNetObject']
+            tablename = type_obj
             q = "insert into "
             q = q + tablename
-            q = q + " (id, name, address, phone, seats_count, longitude, latitude) values ($1, $2, $3, $4, $5, $6, $7)" \
+            q = q + " (id, name, address, phone, seats_count, longitude, latitude, net_status)" \
+                    "values ($1, $2, $3, $4, $5, $6, $7, $8)" \
                     "on conflict do nothing"
-            await conn.execute(q, int(a[i]['ID']), a[i]['Name'], a[i]['Address'],
-                                   a[i]['PublicPhone'][0]['PublicPhone'], a[i]['SeatsCount'],
-                                   float(a[i]['geoData']['coordinates'][0]), float(a[i]['geoData']['coordinates'][1]))
+            if net_obj == "да":
+                net_obj = True
+            if net_obj == "нет":
+                net_obj = False
+            await conn.execute(q, int(a[i]['ID']),
+                               a[i]['Name'],
+                               a[i]['Address'],
+                               a[i]['PublicPhone'][0]['PublicPhone'],
+                               a[i]['SeatsCount'],
+                               float(a[i]['geoData']['coordinates'][0]),
+                               float(a[i]['geoData']['coordinates'][1]),
+                               net_obj)
     print(str(datetime.datetime.now().time()) + ' ' + filename + ' finished')
 
 
