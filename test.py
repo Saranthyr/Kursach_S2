@@ -1,8 +1,6 @@
 import asyncio
 import timeit
-
 from back.db_conn_async import connection
-from exp import get_tables
 import math
 
 

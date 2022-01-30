@@ -1,7 +1,7 @@
 import json
 import requests
-from test2 import nearest
-from to_geo_json import convert
+from workers.location import nearest
+from workers.to_geo_json import convert
 from back.db_conn import connection
 
 

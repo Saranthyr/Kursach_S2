@@ -1,6 +1,3 @@
-import json
-
-
 def convert(text):
     geo = {
             "type": "FeatureCollection",

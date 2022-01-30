@@ -1,5 +1,6 @@
 import flask
-from data_prep import data_prep
+
+from workers.data_prep import data_prep
 
 
 app = flask.Flask(__name__)
@@ -29,6 +30,3 @@ def main():
     else:
         return flask.\
             render_template('tomtomservicever.html')
-
-
-

@@ -33,7 +33,8 @@ var popup = new tt.Popup();
 var geolocateControl = new tt.GeolocateControl({
     positionOptions:{
         enableHighAccuracy: true
-    }
+    },
+    trackUserLocation: false
 });
 map.addControl(geolocateControl, 'top-left');
 
@@ -287,7 +288,7 @@ net.addEventListener('change', async function(event){
 
 theme.addEventListener('change', async function(event){
     map.setStyle({poi: 'poi_main', map: theme.value});
-    map.on('idle', function() {
+    map.once('idle', function() {
         if (saved_response !== undefined){
             displayPOI([saved_response['closest_longitude'], saved_response['closest_latitude']]);
             marker.setLngLat(p_o_i.coordinates).addTo(map);
